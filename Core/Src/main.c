@@ -19,8 +19,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "stm32f4xx_hal.h"
+#include "stm32f4xx_hal_uart.h"
 #include "usart.h"
 #include "gpio.h"
+
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "apMain.h"
 
 /* USER CODE END Includes */
@@ -32,15 +37,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-// #define RCC_AHB1ENR (*(volatile unsigned int*)(0x40023800 + 0x30))
-
-// #define GPIOA_MODER (*(volatile unsigned int*)(0x40020000 + 0x00))
-// #define GPIOA_OTYPER (*(volatile unsigned int*)(0x40020000 + 0x04))
-// #define GPIOA_ODR (*(volatile unsigned int*)(0x40020014))
-
-// #define GPIOB_MODER (*(volatile unsigned int*)(0x40020400 + 0x00))
-// #define GPIOB_OTYPER (*(volatile unsigned int*)(0x40020400 + 0x04))
-// #define GPIOB_ODR (*(volatile unsigned int*)(0x40020414))
 
 /* USER CODE END PD */
 
@@ -98,39 +94,9 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_USART2_UART_Init();
-  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   apInit();
   apMain();
-  // *(volatile unsigned int*)0x40020000 ^=(2u<<10);
-  // HAL_UART_Receive_DMA(&huart2, rx_buf, RX_BUF_SIZE);
-
-  // GPIOA 클럭활성화
-  // *(volatile unsigned int*)(0x40023800 + 0x30) |= (1u<<0);
-  // RCC_AHB1ENR |= (1u<<0);
-
-  // GPIOA_MODER
-
-  // GPIOA_MODER &= ~(3u<<10);
-  // GPIOA_MODER |= (1u<<10);
-  // push pull
-  // GPIOA_OTYPER &= ~(1u<<5);
-  
-
-    // GPIOb 클럭활성화
-  // RCC_AHB1ENR |= (1u<<1);
-  // GPIOb_MODER
-
-  // GPIOB_MODER &= ~(3u<<0);
-  // GPIOB_MODER |= (1u<<0);
-  
-  // push pull
-  // GPIOB_OTYPER &= ~(1u<<0);
- 
-
-
-
-    // uint8_t rx_data;
 
   /* USER CODE END 2 */
 
@@ -138,49 +104,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* Polling 방식으로 1초마다 콘솔에 문자열 출력 */
-    // if(HAL_UART_Receive(&huart2, &rx_data,1,10)==HAL_OK){
-    //   if(rx_data=='a') {
-    //     printf("Hello STM32 Cortex-M4 USART Polling!\r\n");
-    //   }
-    //   else 
-    //   {
-    //     HAL_UART_Transmit(&huart2,&rx_data,1,10);
-  
-    //   }
-    // }
-    
-
-    
-    
-    
-    
-    
-    // GPIO_PinState button= HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_13);
-    // if(button==GPIO_PIN_RESET){
-		// HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-    // }
-    // GPIO_PinState button1= HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_0);
-    // if(button1==GPIO_PIN_RESET){
-    //   HAL_Delay(50);
-    //   button1= HAL_GPIO_ReadPin(GPIOC,GPIO_PIN_0);
-    //   if(button1==GPIO_PIN_RESET){
-		//     HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);
-
-    //   }
-    // Button_t my_button;
-    // Button_Init(&my_button, GPIOC, GPIO_PIN_0);
-
-    //   if(Button_IsPressed(&my_button)){
-    //     HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_0);
-    //   }
-    
-  // GPIOA_ODR ^= (1u<<5);
-  // GPIOB_ODR ^= (1u<<0);
-
-  //   volatile int delay_count = 1000000;
-  //   while(delay_count--){
-  //   }
 
     /* USER CODE END WHILE */
 
@@ -211,9 +134,9 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
-  RCC_OscInitStruct.PLL.PLLN = 336;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 84;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {

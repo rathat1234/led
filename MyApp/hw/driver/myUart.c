@@ -1,21 +1,6 @@
 #include "myUart.h"
 #include <stdio.h>
 #include <string.h>
-
-#define RX_BUF_SIZE 128
-uint8_t rx_data;
-
-uint8_t rx_buf[RX_BUF_SIZE];
-uint8_t send_buf[RX_BUF_SIZE];
-uint8_t newline[] = "\r\n";
-uint8_t entkey = '\r';
-int check = 0;
-// void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-uint8_t rx_buf_1[RX_BUF_SIZE];
-uint8_t rx_buf_2[RX_BUF_SIZE];
-
-
-
 #ifdef __GNUC__
   #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 #else
@@ -24,101 +9,46 @@ uint8_t rx_buf_2[RX_BUF_SIZE];
 
 PUTCHAR_PROTOTYPE
 {
-  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+  /* Polling 방식으로 1바이트 전송 (전송 완료될 때까지 대기) */
   HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xFFFF);
-  
   return ch;
 }
 
+#define RX_BUF_SIZE 128
+uint8_t rx_data;
+uint8_t rx_buf[RX_BUF_SIZE];
+
 void uartInit(void){
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx_buf_2, RX_BUF_SIZE);
-    HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx_buf_1, RX_BUF_SIZE);
+  //HAL_UART_Receive_IT(&huart2, &rx_data, 1);
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx_buf, RX_BUF_SIZE);
 }
 
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+
+  if(huart->Instance==USART2){
+    if(rx_data=='a')
+      printf("Hello STM32 Cortex-M4 USART Polling!\r\n");
+    else
+      HAL_UART_Transmit(&huart2, rx_buf, RX_BUF_SIZE, 100);
+
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx_buf, RX_BUF_SIZE);
+  }
+}
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-    if (huart->Instance == USART2)
-    {
-        for (uint16_t i = 0; i < Size; i++)
-        {
-            uint8_t c = rx_buf_2[i];
+  if(huart->Instance==USART2){
 
-            if (c == entkey)
-            {
-                if (check > 0)
-                {
-                    HAL_UART_Transmit(&huart1, send_buf, check, 100);
-                }
+    HAL_UART_Transmit(&huart2, rx_buf, Size, 100);
 
-                HAL_UART_Transmit(&huart1, newline, 2, 100);
-                HAL_UART_Transmit(&huart2, newline, 2, 100);
+    HAL_UART_DMAStop(&huart2);
+    memset(rx_buf,0,Size);
 
-                memset(send_buf, 0, RX_BUF_SIZE);
-                check = 0;
-            }
-            else if (c == 0x08 || c == 0x7F)
-            {
-                if (check > 0)
-                {
-                    check--;
+  }
+  HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx_buf, RX_BUF_SIZE);
 
-                    send_buf[check] = 0;
-
-                    uint8_t backspace[] = "\b \b";
-                    HAL_UART_Transmit(&huart2, backspace, 3, 100);
-                }
-            }
-            else
-            {
-                if (check < RX_BUF_SIZE - 1)
-                {
-                    send_buf[check] = c;
-                    check++;
-
-                    HAL_UART_Transmit(&huart2, &c, 1, 10);
-                }
-            }
-        }
-
-        memset(rx_buf_2, 0, RX_BUF_SIZE);
-
-        HAL_UARTEx_ReceiveToIdle_DMA(
-            &huart2,
-            rx_buf_2,
-            RX_BUF_SIZE
-        );
-    }
-
-    else if (huart->Instance == USART1)
-    {
-        HAL_UART_Transmit(&huart2, rx_buf_1, Size, 100);
-
-        memset(rx_buf_1, 0, RX_BUF_SIZE);
-
-        HAL_UARTEx_ReceiveToIdle_DMA(
-            &huart1,
-            rx_buf_1,
-            RX_BUF_SIZE
-        );
-    }
 }
 
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART2)
-    {
-        HAL_UARTEx_ReceiveToIdle_DMA(
-            &huart2,
-            rx_buf_2,
-            RX_BUF_SIZE
-        );
-    }
-    else if (huart->Instance == USART1)
-    {
-        HAL_UARTEx_ReceiveToIdle_DMA(
-            &huart1,
-            rx_buf_1,
-            RX_BUF_SIZE
-        );
-    }
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart){
+  HAL_UART_Receive_DMA(&huart2, rx_buf, RX_BUF_SIZE);
 }
