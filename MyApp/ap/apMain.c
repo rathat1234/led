@@ -2,6 +2,7 @@
 #include "myUart.h"
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_adc.h"
+#include "myAdc.h"
 
 #include <stdint.h>
 #include <stdio.h>
@@ -11,16 +12,16 @@ extern ADC_HandleTypeDef hadc1;
 void apInit(void){
     uartInit();
 }
+uint32_t adc_multi_values[3] = {0,0,0};
+
 
 void apMain(void){
-    uint32_t adc_single_value=0;
     while(1){
-      HAL_ADC_Start(&hadc1);
-      if(HAL_ADC_PollForConversion(&hadc1,100)==HAL_OK){
-        adc_single_value=HAL_ADC_GetValue(&hadc1);
-      }
-      HAL_ADC_Stop(&hadc1);
-      HAL_Delay(200);
-      
+      adc_multi_values[0]=adc_ch0();
+      adc_multi_values[1]=adc_ch1();
+      adc_multi_values[2]=adc_ch4();
+
+      HAL_Delay(500);
+
     }
 }
