@@ -6,4 +6,4 @@
 
 
 
-void uartInit(void)
+void uartInit(void);

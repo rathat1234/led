@@ -1,5 +1,6 @@
 #include "myUart.h"
 #include <stdio.h>
+#include <string.h>
 
 #define RX_BUF_SIZE 128
 uint8_t rx_data;

@@ -63,46 +63,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// #define DEBOUNCE_DELAY_MS 50
-// typedef struct _Button__t{
-//   GPIO_TypeDef* port;
-//   uint16_t pin;
-//   uint32_t last_debounce_time;
-//   GPIO_PinState last_raw_state;
-//   GPIO_PinState stable_state;
-// }Button_t;
-
-// void Button_Init(Button_t* btn, GPIO_TypeDef* port, uint16_t pin){
-//   btn->port = port;
-//   btn->pin = pin;
-//   btn->last_debounce_time = 0;
-//   btn->last_debounce_time=HAL_GPIO_ReadPin(port, pin);
-//   btn->stable_statfe=btn->last_raw_state;
-// }
-
-// bool Button_IsPressed(Button_t* btn){
-//   GPIO_PinState current_raw = HAL_GPIO_ReadPin(btn->port, btn->pin);
-//   uint32_t current_time = HAL_GetTick();
-//   if(current_raw != btn->last_raw_state){
-//     btn->last_debounce_time=current_time;
-//     btn->last_raw_state=current_raw;
-//   }
-//   if((current_time - btn->last_debounce_time)>=DEBOUNCE_DELAY_MS){
-//     if(btn->last_raw_state== GPIO_PIN_RESET)
-//       return true;
-//     else return false;
-//   }
-
-//   // HAL_GPIO_EXTI_IRQHandler(13);
-//   // HAL_GPIO_EXTI_IRQHandler(1);
-
-//   return false;
-// }
-
-
-
-
-
 
 
 /* USER CODE END 0 */
